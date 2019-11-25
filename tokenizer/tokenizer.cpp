@@ -19,6 +19,7 @@ namespace miniplc0 {
 
     int checkKeywords(std::string token)
     {
+        // 夹杂私货
         std::string keywords[] = {"begin","end","const","var","print","wyx"};
         for(int i = 0;keywords[i]!="wyx";i++)
         {
@@ -49,6 +50,7 @@ namespace miniplc0 {
 	std::pair<std::vector<Token>, std::optional<CompilationError>> Tokenizer::AllTokens() {
 		std::vector<Token> result;
 		while (true) {
+		    // 这里看清，等于的是Next，不是实现的next，Next中还会对内容进行进一步的检查，例如标识符的开头问题
 			auto p = NextToken();
 			if (p.second.has_value()) {
 				if (p.second.value().GetCode() == ErrorCode::ErrEOF)
@@ -170,7 +172,7 @@ namespace miniplc0 {
 				std::string temp;
                 if (!current_char.has_value())
                 {
-                    // 注释的是无必要的，因为已经return，不必更新状态
+                    // 注释的是无必要的，因为已经return，不必更新状态，也因此不必清空ss，再来的时候又是新定义的了
 //                    current_state = DFAState ::INITIAL_STATE;
                     unreadLast();
                     ss >> temp;
@@ -194,7 +196,7 @@ namespace miniplc0 {
 				    ss << ch;
 				    break;
                 }
-				// 如果读到的是字母，则存储读到的字符，并切换状态到标识符
+				// 如果读到的是字母，则存储读到的字符，并切换状态到标识符，用于报错
 				if(isalpha(ch))
                 {
 				    ss << ch;
@@ -204,7 +206,6 @@ namespace miniplc0 {
 				// 如果读到的字符不是上述情况之一，则回退读到的字符，并解析已经读到的字符串为整数
 				unreadLast();
                 ss >> temp;
-                //如果返回有值的optional需要make，无值可直接optional
                 if(temp.length()>10||getTokenNum(temp) > INT_MAX)
                 {
                     return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrIntegerOverflow));
@@ -219,6 +220,7 @@ namespace miniplc0 {
 				// 请填空：
 				// 如果当前已经读到了文件尾，则解析已经读到的字符串
                 //     如果解析结果是关键字，那么返回对应关键字的token，否则返回标识符的token
+                // 这里temp只是缓冲区的临时存储，因此所有值都会传过来
                 std::string temp;
                 int type;
                 if (!current_char.has_value())
@@ -292,7 +294,8 @@ namespace miniplc0 {
 								   // 请填空：
 								   // 对于其他的合法状态，进行合适的操作
 								   // 比如进行解析、返回token、返回编译错误
-								   // 缩进是主教的锅，switch直接case对其有点奇怪
+
+								   // 缩进是主教的锅，switch直接case对齐有点奇怪
                 case MULTIPLICATION_SIGN_STATE: {
                     unreadLast();
                     return std::make_pair(std::make_optional<Token>(TokenType::MULTIPLICATION_SIGN, '*', pos, currentPos()), std::optional<CompilationError>());
@@ -332,6 +335,8 @@ namespace miniplc0 {
 		switch (t.GetType()) {
 			case IDENTIFIER: {
 				auto val = t.GetValueString();
+				// 这里其实就是助教实现好的判断标识符的数字开头的函数，如果这里没有写
+				// 在标识符的状态的结束时，其实是需要判断temp的值的，但是已经实现，因此就没有必要了
 				if (miniplc0::isdigit(val[0]))
 					return std::make_optional<CompilationError>(t.GetStartPos().first, t.GetStartPos().second, ErrorCode::ErrInvalidIdentifier);
 				break;

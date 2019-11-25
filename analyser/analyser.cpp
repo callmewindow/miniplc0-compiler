@@ -88,7 +88,7 @@ namespace miniplc0 {
 			next = nextToken();
 			if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
-			// 判断重定义，这是语义分析的内容，这里结合进行
+			// 判断重定义，其实是语义分析的内容，这里结合进行
 			if (isDeclared(next.value().GetValueString()))
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDuplicateDeclaration);
 			// 添加常量，定义语句需要add
@@ -101,6 +101,7 @@ namespace miniplc0 {
 
 			// <常表达式>
 			int32_t val;
+			// 综合属性传值
 			auto err = analyseConstantExpression(val);
 			if (err.has_value())
 				return err;
@@ -140,6 +141,7 @@ namespace miniplc0 {
             next = nextToken();
             if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
+            // 是否定义，这里会检查三种，常量，未初始化变量和初始化变量，因此不必担心后续
             if (isDeclared(next.value().GetValueString()))
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDuplicateDeclaration);
 
@@ -147,7 +149,7 @@ namespace miniplc0 {
             auto temp = next;
 
             // 变量可能没有初始化，仍然需要一次预读
-            // 但无论如何都需要分配空间，因此先放入一个临时值
+            // 但无论如何都需要分配空间，因此先放入一个临时值，防止出现奇怪得错误
             _instructions.emplace_back(Operation::LIT,0);
 
             // '='
@@ -159,14 +161,13 @@ namespace miniplc0 {
                 // 判断分号
                 if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
                     return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
-                // 是分号则添加一个未初始化的变量然后继续，注意不同回退，分号已经判断完毕
+                // 是分号则添加一个未初始化的变量然后继续，注意不用回退，分号已经判断完毕
                 addUninitializedVariable(temp.value());
                 continue;
             }
 
             // '<表达式>'
-            // 注意，这里表达式的分析实现是不提前计算的，其实提前计算也可以
-//            int32_t val;
+            // 注意，这里表达式的分析实现是不提前计算的，其实提前计算也可以，就需要和常量表达式相同传入地址
             auto err = analyseExpression();
             if (err.has_value())
                 return err;
@@ -176,11 +177,11 @@ namespace miniplc0 {
             if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
 
-            // 说明是初始化的变量
+            // 说明是初始化的变量，直接初始化
             addVariable(temp.value());
 
             // 虚拟机指令
-            // 这里因为计算好的表达式的值已经在栈顶了，因此首先添加变量，然后存储表达式在栈顶的值即可
+            // 这里因为计算好的表达式的值已经在栈顶了，因此首先添加变量，然后存储表达式在栈顶的值即可，相当于更新刚才LIT 0 的值
             _instructions.emplace_back(Operation::STO, getIndex(temp.value().GetValueString()));
         }
 		return {};
@@ -206,7 +207,7 @@ namespace miniplc0 {
 				next.value().GetType() != TokenType::SEMICOLON) {
 				return {};
 			}
-			// 此时也有可能是其他的非符号，例如等号，但是将这个错误交给end的判断进行处理即可
+			// 此时也有可能是其他的符号，例如等号，但是将这个错误交给end的判断进行处理即可，就是报错有点奇怪。。
 			std::optional<CompilationError> err;
 			switch (next.value().GetType()) {
 				// 这里需要你针对不同的预读结果来调用不同的子程序
@@ -225,7 +226,7 @@ namespace miniplc0 {
                     break;
 
                 case TokenType::SEMICOLON :
-                    // 这里因为没有对应的子程序，因此回退需要取消，即再读
+                    // 这里因为没有对应的子程序，因此回退需要取消，即将这个分号读进来，否则下一个判断会在分号无限循环
                     next = nextToken();
                     break;
 
@@ -247,6 +248,7 @@ namespace miniplc0 {
 		// 除了这里，表达式中的计算可能会导致溢出（在+或*时，因此需要注意）
 
         // [<符号>]
+        // 助教编写
         auto next = nextToken();
         auto prefix = 1;
         if (!next.has_value())
@@ -272,7 +274,7 @@ namespace miniplc0 {
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIntegerOverflow);
         }
         out = tempNum;
-        // 这里是不必的，因为完成后还需要再加载
+        // 这里是不必的，因为完成后在常量赋值处会有一个加载指令的，而且顺序需要和SUB对应，也不能添加
 //        _instructions.emplace_back(Operation::LIT, out);
 
         // 取负
@@ -364,6 +366,7 @@ namespace miniplc0 {
             {
 		        if(it->first == identifierName)
                 {
+		            // 位置的索引直接替换过来，而且定义时会检测重名，因此不必担心会替换什么
 		            _vars[identifierName] = it->second;
 		            _uninitialized_vars.erase(it);
 		            break;
@@ -475,7 +478,7 @@ namespace miniplc0 {
 //                err = analyseAssignmentStatement();
 //                if(err.has_value())
 //                    return err;
-                // 如果不是已经初始化的变量或常量就报错，否则加载它的值（包括未定义和未初始化两种），报错情况最好也分开
+                // 如果不是 已经初始化的变量或常量 就报错，否则加载它的值（包括未定义和未初始化两种），报错情况最好也分开
                 if(!isInitializedVariable(next.value().GetValueString())&&!isConstant(next.value().GetValueString()))
                 {
                     // 未初始化
