@@ -58,19 +58,23 @@ string
 cctype
 -
 
-F:/Desktop/study/miniplc0-compiler/analyser/analyser.cpp
+C:/Users/84759/Desktop/miniplc0-compiler/analyser/analyser.cpp
 analyser.h
-F:/Desktop/study/miniplc0-compiler/analyser/analyser.h
+C:/Users/84759/Desktop/miniplc0-compiler/analyser/analyser.h
 climits
 -
+sstream
+-
+map
+-
 
-F:/Desktop/study/miniplc0-compiler/analyser/analyser.h
+C:/Users/84759/Desktop/miniplc0-compiler/analyser/analyser.h
 error/error.h
-F:/Desktop/study/miniplc0-compiler/analyser/error/error.h
+C:/Users/84759/Desktop/miniplc0-compiler/analyser/error/error.h
 instruction/instruction.h
-F:/Desktop/study/miniplc0-compiler/analyser/instruction/instruction.h
+C:/Users/84759/Desktop/miniplc0-compiler/analyser/instruction/instruction.h
 tokenizer/token.h
-F:/Desktop/study/miniplc0-compiler/analyser/tokenizer/token.h
+C:/Users/84759/Desktop/miniplc0-compiler/analyser/tokenizer/token.h
 vector
 -
 optional
@@ -84,11 +88,19 @@ cstdint
 cstddef
 -
 
-F:/Desktop/study/miniplc0-compiler/tokenizer/tokenizer.cpp
+C:/Users/84759/Desktop/miniplc0-compiler/tokenizer/tokenizer.cpp
 tokenizer/tokenizer.h
-F:/Desktop/study/miniplc0-compiler/tokenizer/tokenizer/tokenizer.h
+C:/Users/84759/Desktop/miniplc0-compiler/tokenizer/tokenizer/tokenizer.h
 cctype
 -
 sstream
+-
+cstring
+-
+iostream
+-
+climits
+-
+algorithm
 -
 
