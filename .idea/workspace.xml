@@ -2,10 +2,10 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="miniplc0" targetName="miniplc0_test" />
       <config projectName="miniplc0" targetName="miniplc0" />
       <config projectName="miniplc0" targetName="miniplc0_lib" />
       <config projectName="miniplc0" targetName="fmt" />
+      <config projectName="miniplc0" targetName="miniplc0_test" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -15,6 +15,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90faaf2f-a4c5-43f3-a7d4-c38bf0a0cfdb" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -93,6 +94,7 @@
       <workItem from="1574512899792" duration="5447000" />
       <workItem from="1574664629857" duration="43000" />
       <workItem from="1574664705072" duration="704000" />
+      <workItem from="1574681170384" duration="918000" />
     </task>
     <servers />
   </component>

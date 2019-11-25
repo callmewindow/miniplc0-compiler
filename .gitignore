@@ -1,6 +1,4 @@
 .vs
 CMakeSettings.json
-*.plc0
-*.txt
 !CMakeLists.txt
 build

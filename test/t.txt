@@ -1,0 +1,19 @@
+begin
+	const one = 1;
+	var b ;
+	var a = one+1;
+	var c = a*a*a;
+	print(c);
+	a = c*a;
+	print(a);
+	a = one+9;
+	b = 9-one;
+	print(a);
+	print(b);
+	b = a+1;
+	print(b);
+	a = a+2;
+	print(a);
+	b = a+b*a;
+	print(b);
+end
